@@ -1,1 +1,9 @@
+# ignore weaveworks deployment config files
 config/
+
+# ignore terraform config files
+.terraform/
+.terraform.*
+!.terraform.lock*
+terraform.*
+!*.tfvars
