@@ -13,11 +13,3 @@ output "sock_shop_address" {
 # output "azs" {
 #   value = data.aws_availability_zones.available.names
 # }
-
-output "master_public_ip" {
-  value = data.aws_instance.ci-sockshop-k8s-master.public_ip
-}
-
-output "node_public_ips" {
-  value = data.aws_instance.ci-sockshop-k8s-node[*].public_ip
-}

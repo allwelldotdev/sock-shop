@@ -18,23 +18,20 @@ resource "aws_instance" "ci-sockshop-k8s-master" {
   })
 }
 
-data "aws_instance" "ci-sockshop-k8s-master" {
-  instance_tags = {
-    Name = "ci-sockshop-k8s-master"
-    Role = "master"
-  }
-  depends_on = [aws_instance.ci-sockshop-k8s-master]
+resource "time_sleep" "wait_30_seconds" {
+  depends_on      = [aws_instance.ci-sockshop-k8s-master, aws_instance.ci-sockshop-k8s-node]
+  create_duration = "30s"
 }
 
 # use null resource for provisioning - instead of provisioning directly inside the aws_instance resource [OLD METHOD]
 resource "null_resource" "ci-sockshop-k8s-master" {
 
   # depend on aws_instance.ci-sockshop-k8s-master being created first
-  depends_on = [aws_instance.ci-sockshop-k8s-master, data.aws_instance.ci-sockshop-k8s-master]
+  depends_on = [time_sleep.wait_30_seconds]
 
   # re-execute when aws_instance.ci-sockshop-k8s-master is updated
   triggers = {
-    instance_id = data.aws_instance.ci-sockshop-k8s-master.id
+    instance_id = aws_instance.ci-sockshop-k8s-master.id
   }
 
   # file provisioner to upload file
@@ -47,7 +44,7 @@ resource "null_resource" "ci-sockshop-k8s-master" {
       type        = "ssh"
       user        = var.instance_user
       private_key = file("~/.ssh/deploy-sock-k8s")
-      host        = data.aws_instance.ci-sockshop-k8s-master.public_ip
+      host        = aws_instance.ci-sockshop-k8s-master.public_ip
       timeout     = "5m"
     }
   }
@@ -67,7 +64,7 @@ resource "null_resource" "ci-sockshop-k8s-master" {
       type        = "ssh"
       user        = var.instance_user
       private_key = file("~/.ssh/deploy-sock-k8s")
-      host        = data.aws_instance.ci-sockshop-k8s-master.public_ip
+      host        = aws_instance.ci-sockshop-k8s-master.public_ip
       timeout     = "5m"
     }
   }
@@ -87,25 +84,16 @@ resource "aws_instance" "ci-sockshop-k8s-node" {
   })
 }
 
-data "aws_instance" "ci-sockshop-k8s-node" {
-  count = var.node_count
-  instance_tags = {
-    Name = "ci-sockshop-k8s-node${count.index + 1}"
-    Role = "worker"
-  }
-  depends_on = [aws_instance.ci-sockshop-k8s-node]
-}
-
 resource "null_resource" "ci-sockshop-k8s-node" {
   count = var.node_count
 
   # depend on aws_instance.ci-sockshop-k8s-node being created first
-  depends_on = [aws_instance.ci-sockshop-k8s-node, data.aws_instance.ci-sockshop-k8s-node]
+  depends_on = [time_sleep.wait_30_seconds]
 
   # re-execute when aws_instance.ci-sockshop-k8s-node is updated
   triggers = {
     # instance_ids = join(",", aws_instance.ci-sockshop-k8s-node[*].id)
-    instance_id = data.aws_instance.ci-sockshop-k8s-node[count.index].id
+    instance_id = aws_instance.ci-sockshop-k8s-node[count.index].id
   }
 
   provisioner "remote-exec" {
@@ -122,7 +110,7 @@ resource "null_resource" "ci-sockshop-k8s-node" {
       type        = "ssh"
       user        = var.instance_user
       private_key = file("~/.ssh/deploy-sock-k8s")
-      host        = data.aws_instance.ci-sockshop-k8s-node[count.index].public_ip
+      host        = aws_instance.ci-sockshop-k8s-node[count.index].public_ip
       timeout     = "5m"
     }
   }
