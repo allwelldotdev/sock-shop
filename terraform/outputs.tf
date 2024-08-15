@@ -1,15 +1,19 @@
-output "node_addresses" {
-  value = aws_instance.ci-sockshop-k8s-node[*].public_dns
+output "cluster_endpoint" {
+  description = "Endpoint for EKS control plane"
+  value       = module.eks.cluster_endpoint
 }
 
-output "master_address" {
-  value = aws_instance.ci-sockshop-k8s-master.public_dns
+output "cluster_security_group_id" {
+  description = "Security group ids attached to the cluster control plane"
+  value       = module.eks.cluster_security_group_id
 }
 
-output "sock_shop_address" {
-  value = aws_elb.ci-sockshop-k8s-elb.dns_name
+output "region" {
+  description = "AWS region"
+  value       = var.aws_region
 }
 
-# output "azs" {
-#   value = data.aws_availability_zones.available.names
-# }
+output "cluster_name" {
+  description = "Kubernetes Cluster Name"
+  value       = module.eks.cluster_name
+}
