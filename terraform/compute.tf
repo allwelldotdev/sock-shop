@@ -6,11 +6,20 @@ resource "aws_key_pair" "ci-sockshop-k8s-ssh" {
 
 # create k8s master node 
 resource "aws_instance" "ci-sockshop-k8s-master" {
-  instance_type          = var.master_instance_type
-  ami                    = lookup(var.aws_amis, local.region)
-  key_name               = aws_key_pair.ci-sockshop-k8s-ssh.key_name
-  subnet_id              = module.vpc.public_subnets[0]
-  vpc_security_group_ids = [module.sg.security_group_id]
+  instance_type               = var.master_instance_type
+  ami                         = lookup(var.aws_amis, local.region)
+  key_name                    = aws_key_pair.ci-sockshop-k8s-ssh.key_name
+  subnet_id                   = module.vpc.public_subnets[0]
+  vpc_security_group_ids      = [module.sg.security_group_id]
+  associate_public_ip_address = true
+
+  user_data = <<-EOF
+  "sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -",
+  "sudo echo \"deb http://apt.kubernetes.io/ kubernetes-xenial main\" | sudo tee --append /etc/apt/sources.list.d/kubernetes.list",
+  "sudo apt-get update",
+  "sudo apt-get install -y docker.io",
+  "sudo apt-get install -y kubelet kubeadm kubectl kubernetes-cni"
+  EOF
 
   tags = merge(local.common_tags, {
     Name = "ci-sockshop-k8s-master"
@@ -18,102 +27,28 @@ resource "aws_instance" "ci-sockshop-k8s-master" {
   })
 }
 
-resource "time_sleep" "wait_30_seconds" {
-  depends_on      = [aws_instance.ci-sockshop-k8s-master, aws_instance.ci-sockshop-k8s-node]
-  create_duration = "30s"
-}
-
-# use null resource for provisioning - instead of provisioning directly inside the aws_instance resource [OLD METHOD]
-resource "null_resource" "ci-sockshop-k8s-master" {
-
-  # depend on aws_instance.ci-sockshop-k8s-master being created first
-  depends_on = [time_sleep.wait_30_seconds]
-
-  # re-execute when aws_instance.ci-sockshop-k8s-master is updated
-  triggers = {
-    instance_id = aws_instance.ci-sockshop-k8s-master.id
-  }
-
-  # file provisioner to upload file
-  provisioner "file" {
-    source      = "../manifests"
-    destination = "/tmp/"
-
-    # connection details
-    connection {
-      type        = "ssh"
-      user        = var.instance_user
-      private_key = file("~/.ssh/deploy-sock-k8s")
-      host        = aws_instance.ci-sockshop-k8s-master.public_ip
-      timeout     = "5m"
-    }
-  }
-
-  # remote-exec or remote execute provisioner to run commands
-  provisioner "remote-exec" {
-    inline = [
-      "sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -",
-      "sudo echo \"deb http://apt.kubernetes.io/ kubernetes-xenial main\" | sudo tee --append /etc/apt/sources.list.d/kubernetes.list",
-      "sudo apt-get update",
-      "sudo apt-get install -y docker.io",
-      "sudo apt-get install -y kubelet kubeadm kubectl kubernetes-cni"
-    ]
-
-    # connection details
-    connection {
-      type        = "ssh"
-      user        = var.instance_user
-      private_key = file("~/.ssh/deploy-sock-k8s")
-      host        = aws_instance.ci-sockshop-k8s-master.public_ip
-      timeout     = "5m"
-    }
-  }
-}
-
 resource "aws_instance" "ci-sockshop-k8s-node" {
-  instance_type          = var.node_instance_type
-  count                  = var.node_count
-  ami                    = lookup(var.aws_amis, local.region)
-  key_name               = aws_key_pair.ci-sockshop-k8s-ssh.key_name
-  subnet_id              = module.vpc.public_subnets[0]
-  vpc_security_group_ids = [module.sg.security_group_id]
+  instance_type               = var.node_instance_type
+  count                       = var.node_count
+  ami                         = lookup(var.aws_amis, local.region)
+  key_name                    = aws_key_pair.ci-sockshop-k8s-ssh.key_name
+  subnet_id                   = module.vpc.public_subnets[count.index % length(module.vpc.public_subnets)]
+  vpc_security_group_ids      = [module.sg.security_group_id]
+  associate_public_ip_address = true
+
+  user_data = <<-EOF
+  "sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -",
+  "sudo echo \"deb http://apt.kubernetes.io/ kubernetes-xenial main\" | sudo tee --append /etc/apt/sources.list.d/kubernetes.list",
+  "sudo apt-get update",
+  "sudo apt-get install -y docker.io",
+  "sudo apt-get install -y kubelet kubeadm kubectl kubernetes-cni",
+  "sudo sysctl -w vm.max_map_count=262144"
+  EOF
 
   tags = merge(local.common_tags, {
     Name = "ci-sockshop-k8s-node${count.index + 1}"
     Role = "worker" # worker node
   })
-}
-
-resource "null_resource" "ci-sockshop-k8s-node" {
-  count = var.node_count
-
-  # depend on aws_instance.ci-sockshop-k8s-node being created first
-  depends_on = [time_sleep.wait_30_seconds]
-
-  # re-execute when aws_instance.ci-sockshop-k8s-node is updated
-  triggers = {
-    # instance_ids = join(",", aws_instance.ci-sockshop-k8s-node[*].id)
-    instance_id = aws_instance.ci-sockshop-k8s-node[count.index].id
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -",
-      "sudo echo \"deb http://apt.kubernetes.io/ kubernetes-xenial main\" | sudo tee --append /etc/apt/sources.list.d/kubernetes.list",
-      "sudo apt-get update",
-      "sudo apt-get install -y docker.io",
-      "sudo apt-get install -y kubelet kubeadm kubectl kubernetes-cni",
-      "sudo sysctl -w vm.max_map_count=262144"
-    ]
-
-    connection {
-      type        = "ssh"
-      user        = var.instance_user
-      private_key = file("~/.ssh/deploy-sock-k8s")
-      host        = aws_instance.ci-sockshop-k8s-node[count.index].public_ip
-      timeout     = "5m"
-    }
-  }
 }
 
 resource "aws_elb" "ci-sockshop-k8s-elb" {

@@ -9,6 +9,9 @@ module "vpc" {
   private_subnets = local.private_subnet_cidrs
   public_subnets  = local.public_subnet_cidrs
 
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+
   # enable_nat_gateway = true
 
   tags = merge(local.common_tags, {})
