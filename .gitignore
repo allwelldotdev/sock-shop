@@ -4,6 +4,6 @@ config/
 # ignore terraform config files
 .terraform/
 .terraform.*
-!.terraform.lock*
+# !.terraform.lock*
 terraform.*
 !*.tfvars
