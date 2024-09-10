@@ -41,7 +41,7 @@ variable "public_subnet_cidrs" {
 variable "instance_type" {
   type        = string
   description = "The instance type to use for the Kubernetes nodes."
-  default     = "t3.medium"
+  default     = "t3.large"
 }
 
 variable "node_count" {
