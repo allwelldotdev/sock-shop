@@ -19,6 +19,13 @@ spec:
       containers:
       - name: carts-db
         image: mongo:3.5.8 # pinned mongo db to an older image release for easier compatibility with microservice architecture
+        resources:
+          limits:
+            cpu: 1
+            memory: 3Gi
+          requests:
+            cpu: 500m
+            memory: 1Gi
         ports:
         - name: mongo
           containerPort: 27017

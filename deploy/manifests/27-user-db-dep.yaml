@@ -19,7 +19,13 @@ spec:
       containers:
       - name: user-db
         image: weaveworksdemos/user-db:0.3.0
-
+        resources:
+          limits:
+            cpu: 1
+            memory: 3Gi
+          requests:
+            cpu: 500m
+            memory: 1Gi
         ports:
         - name: mongo
           containerPort: 27017

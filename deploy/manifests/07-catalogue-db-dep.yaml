@@ -19,6 +19,13 @@ spec:
       containers:
       - name: catalogue-db
         image: weaveworksdemos/catalogue-db:0.3.0
+        resources:
+          limits:
+            cpu: 2
+            memory: 6Gi
+          requests:
+            cpu: 500m
+            memory: 2Gi
         env:
           - name: MYSQL_ROOT_PASSWORD
             value: fake_password

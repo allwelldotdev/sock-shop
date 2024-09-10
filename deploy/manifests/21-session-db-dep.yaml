@@ -21,6 +21,13 @@ spec:
       containers:
       - name: session-db
         image: redis:3.0-alpine # pinned mongo db to an older image release for easier compatibility with microservice architecture
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 256Mi
         ports:
         - name: redis
           containerPort: 6379

@@ -21,6 +21,13 @@ spec:
       containers:
       - name: rabbitmq
         image: rabbitmq:3.6.8-management
+        resources:
+          limits:
+            cpu: 1
+            memory: 2Gi
+          requests:
+            cpu: 250m
+            memory: 512Mi
         ports:
         - containerPort: 15672
           name: management
@@ -38,6 +45,13 @@ spec:
           readOnlyRootFilesystem: true
       - name: rabbitmq-exporter
         image: kbudde/rabbitmq-exporter:v0.20.0 # pinned image to an older image release for easier compatibility with microservice architecture
+        resources:
+          limits:
+            cpu: 800m
+            memory: 1Gi
+          requests:
+            cpu: 500m
+            memory: 512Mi
         ports:
         - containerPort: 9090
           name: exporter
