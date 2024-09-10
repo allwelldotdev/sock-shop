@@ -1,2 +1,2 @@
 # sock-shop
-A sock shop microservices app deployment using weaveworks deployment scripts &amp; config
+The Weave Sock-Shop microservices app deployment using WeaveWorks deployment scripts &amp; config.
