@@ -37,7 +37,7 @@ spec:
               - DAC_OVERRIDE
           readOnlyRootFilesystem: true
       - name: rabbitmq-exporter
-        image: kbudde/rabbitmq-exporter
+        image: kbudde/rabbitmq-exporter:v0.20.0 # pinned image to an older image release for easier compatibility with microservice architecture
         ports:
         - containerPort: 9090
           name: exporter
