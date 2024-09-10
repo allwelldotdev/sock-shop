@@ -9,10 +9,12 @@ metadata:
     name: front-end
   namespace: sock-shop
 spec:
-  type: NodePort
+  # type: NodePort
+  type: LoadBalancer # expose the frontend service through a load balancer instead of a NodePort; because the nodes in the eks are not in the public subnet therefore they do not have any public IPs
   ports:
   - port: 80
     targetPort: 8079
-    nodePort: 30001
+    # nodePort: 30001
+    protocol: TCP
   selector:
     name: front-end
