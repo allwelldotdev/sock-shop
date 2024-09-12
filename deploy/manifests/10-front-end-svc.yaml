@@ -10,7 +10,8 @@ metadata:
   namespace: sock-shop
 spec:
   # type: NodePort
-  type: LoadBalancer # expose the frontend service through a load balancer instead of a NodePort; because the nodes in the eks are not in the public subnet therefore they do not have any public IPs
+  # type: LoadBalancer # expose the frontend service through a load balancer instead of a NodePort; because the nodes in the eks are not in the public subnet therefore they do not have any public IPs
+  type: ClusterIP # expose front-end via ingress
   ports:
   - port: 80
     targetPort: 8079
