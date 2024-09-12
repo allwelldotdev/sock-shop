@@ -31,3 +31,9 @@ override.tf.json
 .terraformrc
 terraform.rc
 
+# ignore helm chart kube-prometheus-stack 'show values' file
+deploy/monitoring/values-demo.yaml
+
+# ignore secrets and environment variables
+.env/*
+
