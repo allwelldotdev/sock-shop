@@ -74,10 +74,53 @@ Below I provide my project filesystem organization for easy traversal and unders
 
 Below is the Kubernetes deployment architecture of the sock-shop microservices app.
 
-[image here]()
+...[updating]
 
 ## Deployment Walkthrough
 
+...[updating]
+
+## Sock-Shop Deployment & Monitoring Images
+
+> WeaveWorks Sock-Shop microservice app deployed on Kubernetes Cluster (AWS EKS).
+
+![sock-shop-deployed.png](./img/sock-shop-deployed.png)
+
+> Fully Qualified Domain Name (FQDN) "sockshop.allwell.cloud" affixed/configured together with ingress and tls termination at the ingress controller (powered by cert-manager).
+
+![sock-shop-tls-certificate-configured.png](./img/sock-shop-tls-certificate-configured.png)
+
+> Testing: trying to log into sock-shop microservice app to test `user` and `user-db` service.
+
+![sock-shop-login.png](./img/sock-shop-login.png)
+
+> Logged in! (see user credentials at top-right of browser window) Testing: `cart` and `cart-db` service is working. I changed the container image from `:latest` to an older, more stable image, different from what was specified in the WeaveWorks config files to get it to function properly.
+
+![sock-shop-cart-solution.png](./img/sock-shop-cart-solution.png)
+
+> Testing: confirmed Prometheus connection to the cluster, nodes, and pods, by checking status targets. They were all UP.
+
+![prometheus-status-targets-up.png](./img/prometheus-status-targets-up.png)
+
+> Monitoring: node CPU load with a 15-min interval on Prometheus.
+
+![prometheus-node-load-per-15min-interval.png](./img/prometheus-node-load-per-15min-interval.png)
+
+> Data Visualization: Grafana datasourcing node-exporter metrics from Prometheus of all 3 worker node and displaying it.
+
+![grafana-node-exporter-data-by-nodes.png](./img/grafana-node-exporter-data-by-nodes.png)
+
+> Data Visualization: Grafana displaying Kubernetes Compute Resources by Cluster.
+
+![grafana-kubernetes-compute-resources-by-cluster.png](./img/grafana-kubernetes-compute-resources-by-cluster.png)
+
+> Data Visualization: Grafana displaying Kubernetes Compute Resources by Namespace (Pods).
+
+![grafana-kubernetes-compute-resources-by-namespace-pods.png](./img/grafana-kubernetes-compute-resources-by-namespace-pods.png)
+
+> Alerting: Alertmanager configured to send firing alerts to Slack channel called `#sockshop-alerts`.
+
+![alertmanager-alerts-to-slack-firing.png](./img/alertmanager-alerts-to-slack-firing.png)
 
 
 <!-- The WeaveWorks sock-shop microservices app deployment using WeaveWork's deployment scripts &amp; config. -->
