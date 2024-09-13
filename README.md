@@ -5,16 +5,17 @@ The sock-shop app is a microservice architecture that comprises of 14 applicatio
 Within this README, I endeavour to elaborate my process of building, architecting, and orchestrating the sock-shop microservice application using:
 1. Infrastructure as code (IAC) tools like Terraform,
 2. Version control tools like Git,
-3. Orchestration tools like Kubernetes (K8s),
-4. A Kubernetes Package Manager tool known as Helm,
-5. Cluster monitoring tools such as:
+3. Containerization Technnologies like Docker and ContainerD,
+4. Orchestration tools like Kubernetes (K8s),
+5. A Kubernetes Package Manager tool known as Helm,
+6. Cluster monitoring tools such as:
    1. Prometheus for cluster, node, and pod metrics,
    2. Grafana for data visualization of metrics (primarily datasourced by Prometheus),
    3. Alertmanager for alerting & notifications.
-6. Bash scripting for automating and securing workflows,
-7. Cluster Ingress Controller tools such as ingress-nginx,
-8. Cluster HTTPS TLS Certificate Authority Management tools such as cert-manager,
-9. Cloud-managed Kubernetes Services like AWS EKS.
+7. Bash scripting for automating and securing workflows,
+8. Cluster Ingress Controller tools such as ingress-nginx,
+9. Cluster HTTPS TLS Certificate Authority Management tools such as cert-manager,
+10. Cloud-managed Kubernetes Services like AWS EKS.
 
 ## Project Filesystem
 
