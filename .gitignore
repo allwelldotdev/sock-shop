@@ -37,3 +37,7 @@ deploy/monitoring/values-demo.yaml
 # ignore secrets and environment variables
 .env/*
 
+# ignore for tree output
+tree_output*
+# deploy/ingress/monitoring
+
