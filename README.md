@@ -75,7 +75,12 @@ Below I provide my project filesystem organization for easy traversal and unders
 
 Below is the Kubernetes deployment architecture of the sock-shop microservices app.
 
+> Sock-Shop AWS EKS Cloud Architecture
+
+![sock-shop-cloud-architecture.png](./img/architecture/cloud-arch.png)
+
 ...[updating]
+
 
 ## Deployment Walkthrough
 
