@@ -79,8 +79,9 @@ Below is the Kubernetes deployment architecture of the sock-shop microservices a
 
 ![sock-shop-cloud-architecture.png](./img/architecture/cloud-arch.png)
 
-...[updating]
+> Sock-Shop Microservices App Architecture
 
+![sock-shop-software-architecture.png](./img/architecture/software-arch.png)
 
 ## Deployment Walkthrough
 
