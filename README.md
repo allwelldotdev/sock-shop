@@ -85,6 +85,82 @@ Below is the Kubernetes deployment architecture of the sock-shop microservices a
 
 ## Deployment Walkthrough
 
+### Sourcing Environment Variables
+
+Before we commence the deployment walkthrough, there are some environment variables required for some technologies to functions properly which I provision within my dev and prod environment but are not available with this git repo. You'll have to generate them using your own outputs for your own use. These environment variables are:
+- `SLACK_WEBHOOK_URL`
+- `SLACK_CHANNEL`
+- `GRAFANA_ADMIN_PASSWORD`
+- `LETS_ENCRYPT_EMAIL`
+- awscli configuration credentials and environment variables (needed by Terraform IAC).
+
+This is done to improve the security of our deployment and version control storage of our config files. To include environment variables in the configuration, export them into the shell/terminal process like so:
+
+```bash
+export SLACK_WEBHOOK_URL='input_url_here'
+```
+
+Or via a file, like so:
+
+```bash
+source /path/to/file
+```
+
+### Building AWS EKS Infrastructure using Terraform
+
+```console
+terraform init
+```
+
+I used Terraform (IAC) to automate, plan, and manage the infrastructure building of AWS EKS. My Terraform configuration `./terraform/main.tf` creates:
+- a VPC (Virtual Private Cloud) in AWS,
+- 3 private and public subnets within the VPC,
+- an EKS (AWS Kubernetes Service) in the private subnets spread across 3 availabliity zones for high-availability,
+- and an AWS IAM role that allows the EKS service to assume an IAM role to create persistent volumes and block storage with the cluster.
+
+```console
+terraform plan
+```
+
+To run the Terraform configuration, I have added variables to allow further customization and infrastructure management. These variables, which can be found in `./terraform/variables.tf`, include:
+- `aws_region` [The aws region to create resources in. Default: `us-east-1`],
+- `vpc_cidr` [The VPC CIDR block. Default: `10.0.0.0/16`],
+- `private_subnet_cidrs` [The private subnet CIDR block. Default: `["10.0.0.0/24", "10.0.1.0/24", "10.0.2.0/24"]`]
+- `public_subnet_cidrs` [The public subnet CIDR block. Default: `[10.0.100.0/24", "10.0.101.0/24", "10.0.102.0/24]`]
+- `instance_type` [The instance type to use for the Kubernetes nodes. Default: `t3.large`],
+- `node_count` [The number of nodes in the cluster. Default: `3`].
+
+```console
+terraform apply
+```
+
+The Terraform configuration takes ~ 10 mins to run. After it's finished running, the following outputs below are parsed which allow me to configure my kubectl Kubernetes server using the AWS EKS kubeconfig I just spun up using Terraform IAC. Terraform outputs include:
+- `cluster_endpoint` [Endpoint for EKS control plane]
+- `region` [AWS region]
+- `cluster_name` [Kubernetes Cluster Name]
+
+```console
+aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name)
+```
+
+### Deploy Microservices in Kubernetes Cluster
+
+At this point, I've configured three things; environment variables, AWS EKS using terraform, and kubeconfig. Next, I deploy the sock-shop microservices app via the Kubernetes manifests in `./deploy/manifests/`.
+
+```console
+kubectl apply -f deploy/manifests
+```
+
+> At the first attempt of deploying the raw config files from the [deprecated Weaveworks repo](https://github.com/microservices-demo/microservices-demo), I came up on some errors which I later engineered solutions for (to be described in a later heading to be titled 'Encountered Problems & Solutions').
+
+### Deploy Monitoring 
+
+Once sock-shop microservices is deployed in Kubernetes cluster, I used Helm to install Kubernetes monitoring resources like Prometheus, Grafana, and AlertManager via the kube
+
+```console
+envsubst < source_file | helm install prometheus -n monitoring --values=-
+```
+
 ...[updating]
 
 ## Sock-Shop Deployment & Monitoring Images
